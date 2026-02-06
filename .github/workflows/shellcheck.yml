@@ -1,11 +1,6 @@
 name: Shellcheck
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'backup'
-      - '.github/workflows/shellcheck.yml'
   pull_request:
     branches: [main]
     paths:
