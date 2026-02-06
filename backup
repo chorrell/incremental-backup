@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Parse arguments
+usage() {
+	cat << EOF
+Usage: $0 -v BACKUP_VOL -r RETENTION DIR1 [DIR2] ...
+  -v BACKUP_VOL: Backup volume path
+  -r RETENTION: Number of days to retain backups
+  DIR1, DIR2, ...: Directories to backup
+EOF
+	exit 1
+}
+
+# Initialize variables
+BACKUP_VOL=""
+RETENTION=""
+
+# Parse options
+while getopts "v:r:h" opt; do
+	case ${opt} in
+		v)
+			BACKUP_VOL=$OPTARG
+			;;
+		r)
+			RETENTION=$OPTARG
+			;;
+		h)
+			usage
+			;;
+		\?)
+			usage
+			;;
+	esac
+done
+
+shift $((OPTIND -1))
+
+# Check required arguments
+if [[ -z "$BACKUP_VOL" ]]; then
+	echo "Error: -v BACKUP_VOL is required" >&2
+	usage
+fi
+
+if [[ -z "$RETENTION" ]]; then
+	echo "Error: -r RETENTION is required" >&2
+	usage
+fi
+
+if [[ $# -lt 1 ]]; then
+	echo "Error: At least one directory (DIR1) is required" >&2
+	usage
+fi
+
+# Vars
+DATE=$(date +"%Y-%m-%d_%H-%M-%S")
+BACKUP_DEST="${BACKUP_VOL}/backup_${DATE}"
+LOG_FILE="/var/log/incremental-backup.log"
+
+# Get directories to backup
+BACKUP_DIRS=("$@")
+
+# Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
+exec >> >(tee -ia ${LOG_FILE})
+
+# Redirect stderr ( 2> ) to stdout ( &1 ) so that it also goes to the named pipe
+exec 2>&1
+
+log_message() {
+	echo "[$(date '+%Y-%m-%d %H:%M:%S.%3N')] $1"
+}
+
+for DIR in "${BACKUP_DIRS[@]}"; do
+	log_message "Backing up ${DIR}..."
+
+	mkdir -p "${BACKUP_DEST}${DIR}"
+	LINK="latest${DIR//\//-}backup"
+
+	/usr/bin/rsync -azh --delete --link-dest="${BACKUP_VOL}"/"${LINK}" "${DIR}" "${BACKUP_DEST}${DIR}"
+
+	log_message "Updating latest symlink for ${DIR}..."
+	if [[ -d "${BACKUP_VOL}/${LINK}" ]]; then 
+		rm -rf "${BACKUP_VOL:?}/${LINK}"
+	fi
+	ln -s "${BACKUP_DEST}${DIR/%\//}" "${BACKUP_VOL}"/"${LINK}"
+
+	log_message "Done."
+done
+
+# Delete old backups according to retention policy
+log_message "Deleting backups older than ${RETENTION} day(s)..."
+
+find "${BACKUP_VOL}" -maxdepth 1 -type d -name "backup_*" -mtime +"${RETENTION}" -exec rm -rf {} +
+
+log_message "Done."
