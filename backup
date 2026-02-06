@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Parse arguments
 usage() {
-	cat << EOF
+	cat <<EOF
 Usage: $0 -v BACKUP_VOL -r RETENTION DIR1 [DIR2] ...
   -v BACKUP_VOL: Backup volume path
   -r RETENTION: Number of days to retain backups
@@ -20,22 +20,22 @@ RETENTION=""
 # Parse options
 while getopts "v:r:h" opt; do
 	case ${opt} in
-		v)
-			BACKUP_VOL=$OPTARG
-			;;
-		r)
-			RETENTION=$OPTARG
-			;;
-		h)
-			usage
-			;;
-		\?)
-			usage
-			;;
+	v)
+		BACKUP_VOL=$OPTARG
+		;;
+	r)
+		RETENTION=$OPTARG
+		;;
+	h)
+		usage
+		;;
+	\?)
+		usage
+		;;
 	esac
 done
 
-shift $((OPTIND -1))
+shift $((OPTIND - 1))
 
 # Check required arguments
 if [[ -z "$BACKUP_VOL" ]]; then
@@ -80,7 +80,7 @@ for DIR in "${BACKUP_DIRS[@]}"; do
 	/usr/bin/rsync -azh --delete --link-dest="${BACKUP_VOL}"/"${LINK}" "${DIR}" "${BACKUP_DEST}${DIR}"
 
 	log_message "Updating latest symlink for ${DIR}..."
-	if [[ -d "${BACKUP_VOL}/${LINK}" ]]; then 
+	if [[ -d "${BACKUP_VOL}/${LINK}" ]]; then
 		rm -rf "${BACKUP_VOL:?}/${LINK}"
 	fi
 	ln -s "${BACKUP_DEST}${DIR/%\//}" "${BACKUP_VOL}"/"${LINK}"
