@@ -1,0 +1,28 @@
+name: Shellcheck
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backup'
+      - '.github/workflows/shellcheck.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backup'
+      - '.github/workflows/shellcheck.yml'
+
+jobs:
+  shellcheck:
+    name: Run shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.'
+          severity: info
+          check_together: 'yes'
