@@ -4,13 +4,13 @@ set -euo pipefail
 
 # Parse arguments
 usage() {
-	cat <<EOF
+  cat << EOF
 Usage: $0 -v BACKUP_VOL -r RETENTION DIR1 [DIR2] ...
   -v BACKUP_VOL: Backup volume path
   -r RETENTION: Number of days to retain backups
   DIR1, DIR2, ...: Directories to backup
 EOF
-	exit 1
+  exit 1
 }
 
 # Initialize variables
@@ -19,38 +19,38 @@ RETENTION=""
 
 # Parse options
 while getopts "v:r:h" opt; do
-	case ${opt} in
-	v)
-		BACKUP_VOL=$OPTARG
-		;;
-	r)
-		RETENTION=$OPTARG
-		;;
-	h)
-		usage
-		;;
-	\?)
-		usage
-		;;
-	esac
+  case ${opt} in
+    v)
+      BACKUP_VOL=$OPTARG
+      ;;
+    r)
+      RETENTION=$OPTARG
+      ;;
+    h)
+      usage
+      ;;
+    \?)
+      usage
+      ;;
+  esac
 done
 
 shift $((OPTIND - 1))
 
 # Check required arguments
 if [[ -z "$BACKUP_VOL" ]]; then
-	echo "Error: -v BACKUP_VOL is required" >&2
-	usage
+  echo "Error: -v BACKUP_VOL is required" >&2
+  usage
 fi
 
 if [[ -z "$RETENTION" ]]; then
-	echo "Error: -r RETENTION is required" >&2
-	usage
+  echo "Error: -r RETENTION is required" >&2
+  usage
 fi
 
 if [[ $# -lt 1 ]]; then
-	echo "Error: At least one directory (DIR1) is required" >&2
-	usage
+  echo "Error: At least one directory (DIR1) is required" >&2
+  usage
 fi
 
 # Vars
@@ -68,24 +68,24 @@ exec >> >(tee -ia ${LOG_FILE})
 exec 2>&1
 
 log_message() {
-	echo "[$(date '+%Y-%m-%d %H:%M:%S.%3N')] $1"
+  echo "[$(date '+%Y-%m-%d %H:%M:%S.%3N')] $1"
 }
 
 for DIR in "${BACKUP_DIRS[@]}"; do
-	log_message "Backing up ${DIR}..."
+  log_message "Backing up ${DIR}..."
 
-	mkdir -p "${BACKUP_DEST}${DIR}"
-	LINK="latest${DIR//\//-}backup"
+  mkdir -p "${BACKUP_DEST}${DIR}"
+  LINK="latest${DIR//\//-}backup"
 
-	/usr/bin/rsync -azh --delete --link-dest="${BACKUP_VOL}"/"${LINK}" "${DIR}" "${BACKUP_DEST}${DIR}"
+  /usr/bin/rsync -azh --delete --link-dest="${BACKUP_VOL}"/"${LINK}" "${DIR}" "${BACKUP_DEST}${DIR}"
 
-	log_message "Updating latest symlink for ${DIR}..."
-	if [[ -d "${BACKUP_VOL}/${LINK}" ]]; then
-		rm -rf "${BACKUP_VOL:?}/${LINK}"
-	fi
-	ln -s "${BACKUP_DEST}${DIR/%\//}" "${BACKUP_VOL}"/"${LINK}"
+  log_message "Updating latest symlink for ${DIR}..."
+  if [[ -d "${BACKUP_VOL}/${LINK}" ]]; then
+    rm -rf "${BACKUP_VOL:?}/${LINK}"
+  fi
+  ln -s "${BACKUP_DEST}${DIR/%\//}" "${BACKUP_VOL}"/"${LINK}"
 
-	log_message "Done."
+  log_message "Done."
 done
 
 # Delete old backups according to retention policy
