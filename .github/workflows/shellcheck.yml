@@ -1,4 +1,4 @@
-name: Shellcheck
+name: Shell Script Checks
 
 on:
   pull_request:
@@ -8,8 +8,8 @@ on:
       - '.github/workflows/shellcheck.yml'
 
 jobs:
-  shellcheck:
-    name: Run shellcheck
+  lint:
+    name: Lint shell scripts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,3 +17,6 @@ jobs:
 
       - name: Run ShellCheck
         run: shellcheck backup
+
+      - name: Run shfmt
+        run: docker run --rm -v "$PWD:/mnt" mvdan/shfmt:v3 -i 2 -sr -ci -d /mnt/backup
