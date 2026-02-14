@@ -71,6 +71,50 @@ BACKUP_VOL/
 
 All backup operations are logged to `/var/log/incremental-backup.log` with timestamps.
 
+## Testing
+
+The project includes comprehensive tests using [bats](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
+
+### Running Tests Locally
+
+First, install bats:
+
+```bash
+# macOS with Homebrew
+brew install bats-core
+
+# Ubuntu/Debian
+apt-get install bats
+```
+
+Then run the tests:
+
+```bash
+make test
+```
+
+### Running Linting and Formatting
+
+Check the script with ShellCheck:
+
+```bash
+make lint
+```
+
+Format the script with shfmt:
+
+```bash
+make format
+```
+
+### Testing with Custom Log File
+
+For testing purposes, you can override the log file location using the `LOG_FILE` environment variable:
+
+```bash
+LOG_FILE=/tmp/backup.log ./backup -v /tmp/backup_vol -r 30 /path/to/dir
+```
+
 ## License
 
 Mozilla Public License 2.0
