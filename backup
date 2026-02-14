@@ -56,13 +56,13 @@ fi
 # Vars
 DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 BACKUP_DEST="${BACKUP_VOL}/backup_${DATE}"
-LOG_FILE="/var/log/incremental-backup.log"
+LOG_FILE="${LOG_FILE:-/var/log/incremental-backup.log}"
 
 # Get directories to backup
 BACKUP_DIRS=("$@")
 
 # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
-exec >> >(tee -ia ${LOG_FILE})
+exec >> >(tee -ia "${LOG_FILE}")
 
 # Redirect stderr ( 2> ) to stdout ( &1 ) so that it also goes to the named pipe
 exec 2>&1

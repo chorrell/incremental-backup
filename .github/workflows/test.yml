@@ -1,0 +1,28 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backup'
+      - 'tests/**'
+      - '.github/workflows/test.yml'
+      - 'Makefile'
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Bats and bats libraries
+        id: setup-bats
+        uses: bats-core/bats-action@4.0.0
+
+      - name: Run bats tests
+        shell: bash
+        env:
+          BATS_LIB_PATH: ${{ steps.setup-bats.outputs.lib-path }}
+        run: bats tests/backup.bats
