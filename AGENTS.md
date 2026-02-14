@@ -80,12 +80,14 @@ incremental-backup/
 ├── README.md                       # User documentation
 ├── AGENTS.md                       # This file - Agent documentation
 ├── LICENSE                         # Mozilla Public License 2.0
+├── .markdownlint.yaml              # Markdown linting configuration
 ├── tests/
 │   └── backup.bats                # Comprehensive bats test suite (9 tests)
 └── .github/
     └── workflows/
-        ├── shellcheck.yml         # Linting CI workflow
-        └── test.yml               # Test CI workflow
+        ├── shellcheck.yml         # Shell script linting CI workflow
+        ├── test.yml               # Bats test execution CI workflow
+        └── markdownlint.yml       # Markdown linting CI workflow
 ```
 
 ## Development Workflow
@@ -237,7 +239,7 @@ Example:
 
 ## CI/CD Workflows
 
-### Linting Workflow (`.github/workflows/shellcheck.yml`)
+### Shell Script Linting Workflow (`.github/workflows/shellcheck.yml`)
 
 Triggers on:
 
@@ -268,6 +270,21 @@ Runs:
 
 **Action:** PR will fail if any test fails
 
+### Markdown Linting Workflow (`.github/workflows/markdownlint.yml`)
+
+Triggers on:
+
+- Changes to any markdown files (`**/*.md`)
+- Changes to `.markdownlint.yaml` configuration
+- Changes to `.github/workflows/markdownlint.yml`
+
+Runs:
+
+- DavidAnson/markdownlint-cli2-action@v22 to validate all markdown files
+- Respects `.markdownlint.yaml` configuration (disables MD013 line length and MD034 bare URLs)
+
+**Action:** PR will fail if markdown files have style violations
+
 ## Common Tasks
 
 ### Add a Command-line Option
@@ -277,6 +294,7 @@ Runs:
 3. Write test in `tests/backup.bats`
 4. Update README.md with new option
 5. Run `make test && make lint`
+6. PR will be validated by shell linting, tests, and markdown workflows
 
 ### Fix a Bug
 
@@ -289,8 +307,11 @@ Runs:
 ### Improve Documentation
 
 1. Update README.md (for users) or AGENTS.md (for agents)
-2. No tests needed, but CI will still validate shell scripts
-3. Create PR with documentation changes
+2. No tests needed, but CI will validate:
+   - Shell scripts (ShellCheck, shfmt)
+   - Markdown files (markdownlint)
+3. Ensure markdown follows `.markdownlint.yaml` configuration
+4. Create PR with documentation changes
 
 ## Environment Variables
 
@@ -308,21 +329,39 @@ Key environment variables:
 - **shfmt Options:** [https://github.com/mvdan/sh](https://github.com/mvdan/sh)
 - **Project License:** Mozilla Public License 2.0 (see LICENSE file)
 
+## Markdown Configuration
+
+The project uses `.markdownlint.yaml` to configure markdown linting:
+
+- **MD013 (line length):** Disabled for readable long lines in documentation
+- **MD034 (bare URLs):** Disabled since we use proper markdown link syntax
+
+This configuration is respected by:
+
+- `DavidAnson/markdownlint-cli2-action@v22` in GitHub Actions
+- Local markdownlint-cli2 when running `docker run davidanson/markdownlint-cli2:latest`
+
 ## Support for AI Agents
 
 This project is designed to be agent-friendly:
 
 - ✅ **Reproducible environment:** All dependencies are documented
 - ✅ **Comprehensive tests:** 9 tests with clear pass/fail criteria
-- ✅ **Automated validation:** CI checks prevent broken commits
+- ✅ **Automated validation:** Three CI workflows prevent broken commits
+  - Shell script linting (ShellCheck + shfmt)
+  - Unit & integration tests (bats)
+  - Markdown linting (markdownlint-cli2)
 - ✅ **Clear conventions:** Naming, style, and workflow documented
 - ✅ **Single-command setup:** `make test` validates everything
 - ✅ **Relative paths:** Tests work from any checkout location
+- ✅ **Markdown standards:** Consistent documentation format enforced
 
 Agents should:
 
-- Always run `make test` after changes
-- Always run `make lint` before creating PRs
-- Write tests for new functionality
-- Follow the 2-space indentation standard
+- Always run `make test` after changes to verify tests pass
+- Always run `make lint` before creating PRs to check shell scripts
+- Write tests for new functionality in `tests/backup.bats`
+- Follow the 2-space indentation standard (enforced by shfmt)
+- Keep documentation up-to-date and markdown-compliant
 - Reference `BACKUP_SCRIPT` variable instead of hardcoded paths
+- Ensure all PRs pass three automated validation workflows
