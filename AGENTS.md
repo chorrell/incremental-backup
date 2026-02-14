@@ -43,6 +43,8 @@ bats tests/backup.bats  # Run tests
 | `make test` | Run all bats tests |
 | `make lint` | Run ShellCheck on all shell scripts |
 | `make format` | Format shell scripts with shfmt (2-space indent) |
+| `make install-hooks` | Install pre-commit hooks for automated checks |
+| `make pre-commit` | Run pre-commit hooks on all files |
 | `./backup -h` | Display help and usage information |
 
 ### Running Backups
@@ -80,7 +82,10 @@ incremental-backup/
 ├── README.md                       # User documentation
 ├── AGENTS.md                       # This file - Agent documentation
 ├── LICENSE                         # Mozilla Public License 2.0
+├── .gitignore                      # Git ignore rules for env, IDE, OS, log files
 ├── .markdownlint.yaml              # Markdown linting configuration
+├── .pre-commit-config.yaml         # Pre-commit hooks configuration
+├── requirements-dev.txt            # Development dependencies (pre-commit)
 ├── tests/
 │   └── backup.bats                # Comprehensive bats test suite (9 tests)
 └── .github/
@@ -133,13 +138,42 @@ incremental-backup/
 
 5. **Add tests** for new functionality in `tests/backup.bats`
 
+### Installing Pre-Commit Hooks
+
+To automate code quality checks before each commit:
+
+```bash
+make install-hooks  # Install pre-commit and set up git hooks
+```
+
+This uses `uv tool install` to install pre-commit in an isolated environment, avoiding Python's externally-managed environment restrictions.
+
+Or manually:
+
+```bash
+uv tool install pre-commit
+pre-commit install
+```
+
+Pre-commit hooks will automatically run:
+
+- **ShellCheck** - Static analysis on shell scripts
+- **shfmt** - Code formatting (2-space indent, spaces around redirects)
+
+Markdown linting is handled by the GitHub Actions CI workflow (.github/workflows/markdownlint.yml) instead of pre-commit.
+
+If any hook fails, fix the issues and try committing again.
+
+**Requirements:** `uv` (fast Python package installer). Install with `brew install uv` or from https://docs.astral.sh/uv/
+
 ### Before Creating a PR
 
 Ensure all checks pass:
 
 ```bash
-make test   # All 9 tests pass
-make lint   # No ShellCheck or shfmt violations
+make test           # All 9 tests pass
+make lint           # No ShellCheck or shfmt violations
+make pre-commit     # Run all pre-commit hooks
 ```
 
 ## Code Style & Conventions
@@ -184,6 +218,10 @@ Example test structure:
 | `Makefile` | Task automation - provides test/lint/format targets | Rarely needs changes |
 | `README.md` | User documentation - how to use the script | Update with new user-facing features |
 | `AGENTS.md` | Agent documentation (this file) | Update when development workflow changes |
+| `.pre-commit-config.yaml` | Pre-commit hooks configuration | Update when adding new checks |
+| `requirements-dev.txt` | Development dependencies | Update when adding new tools |
+| `.gitignore` | Git ignore rules | Update when adding new patterns |
+| `.markdownlint.yaml` | Markdown linting rules | Rarely needs changes |
 
 ## Testing Guide
 
