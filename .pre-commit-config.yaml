@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        name: ShellCheck
+        description: Shell script static analysis
+        entry: shellcheck
+        language: python
+        types: [shell]
+
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: shfmt
+        name: shfmt
+        description: Format shell scripts with shfmt
+        entry: shfmt -i 2 -sr -ci
+        language: system
+        types: [shell]
