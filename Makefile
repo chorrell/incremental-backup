@@ -14,7 +14,7 @@ lint:
 	docker run --rm -v "$$PWD:/code" koalaman/shellcheck:stable /code/backup /code/tests/backup.bats
 
 format:
-	docker run --rm -v "$$PWD:/code" mvdan/shfmt:v3 -i 2 -sr -ci -w /code/backup
+	docker run --rm -v "$$PWD:/code" mvdan/shfmt:v3 -i 2 -sr -ci -w /code/backup /code/tests/backup.bats
 
 pre-commit:
 	pre-commit run --all-files
