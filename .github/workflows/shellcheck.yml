@@ -1,7 +1,4 @@
 name: Shell Script Checks
-permissions:
-  contents: read
-  pull-requests: write
 
 on:
   pull_request:
@@ -12,15 +9,22 @@ on:
       - '.github/workflows/shellcheck.yml'
 
 jobs:
-  lint:
-    name: Lint shell scripts
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Shellcheck
+        run: |
+          shellcheck backup
+          shellcheck tests/backup.bats
+  
+  shfmt:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-
-      - name: Run ShellCheck
-        run: shellcheck backup tests/backup.bats
 
       - name: Run shfmt
         run: docker run --rm -v "$PWD:/mnt" mvdan/shfmt:v3 -i 2 -sr -ci -d /mnt/backup /mnt/tests/backup.bats
