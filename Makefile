@@ -1,27 +1,22 @@
-.PHONY: test lint format help install-hooks pre-commit
+.PHONY: test lint format help pre-commit
 
 help:
 	@echo "incremental-backup Makefile targets:"
 	@echo "  test            - Run all tests"
 	@echo "  lint            - Run shellcheck on the backup script"
 	@echo "  format          - Format backup script with shfmt"
-	@echo "  install-hooks   - Install pre-commit hooks"
 	@echo "  pre-commit      - Run pre-commit hooks on all files"
 
 test:
-	bats tests/backup.bats
+	docker run --rm -v "$$PWD:/code" -w /code alpine:latest sh -c "apk add --no-cache bash bats rsync && bats /code/tests/backup.bats"
 
 lint:
-	shellcheck backup tests/backup.bats
+	docker run --rm -v "$$PWD:/code" koalaman/shellcheck:stable /code/backup /code/tests/backup.bats
 
 format:
-	shfmt -i 2 -sr -ci -w backup
-
-install-hooks:
-	uv tool install pre-commit
-	pre-commit install
+	docker run --rm -v "$$PWD:/code" mvdan/shfmt:v3 -i 2 -sr -ci -w /code/backup
 
 pre-commit:
 	pre-commit run --all-files
 
-.PHONY: test lint format help install-hooks pre-commit
+.PHONY: test lint format help pre-commit

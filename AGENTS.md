@@ -13,8 +13,9 @@ This document provides essential information for autonomous AI agents working wi
 - bash
 - rsync
 - find
+- Docker (for running tests, linting, and formatting)
 - (Optional) GNU make for running commands via Makefile
-- (Optional) bats for running tests locally
+- (Optional) pre-commit for automated code quality checks before commits
 
 ### Single Command Setup
 
@@ -26,13 +27,7 @@ cd incremental-backup
 make test  # Verify everything works
 ```
 
-Or manually:
-
-```bash
-git clone https://github.com/chorrell/incremental-backup.git
-cd incremental-backup
-bats tests/backup.bats  # Run tests
-```
+Tests run in Docker containers, so no local tool installation is required beyond Docker itself.
 
 ## Available Commands
 
@@ -40,10 +35,9 @@ bats tests/backup.bats  # Run tests
 
 | Command | Purpose |
 | --- | --- |
-| `make test` | Run all bats tests |
-| `make lint` | Run ShellCheck on all shell scripts |
-| `make format` | Format shell scripts with shfmt (2-space indent) |
-| `make install-hooks` | Install pre-commit hooks for automated checks |
+| `make test` | Run all bats tests (via Docker) |
+| `make lint` | Run ShellCheck on all shell scripts (via Docker) |
+| `make format` | Format shell scripts with shfmt (via Docker, 2-space indent) |
 | `make pre-commit` | Run pre-commit hooks on all files |
 | `./backup -h` | Display help and usage information |
 
@@ -78,14 +72,13 @@ LOG_FILE=/tmp/test.log ./backup -v /tmp/backup_vol -r 30 /path/to/dir
 ```text
 incremental-backup/
 ├── backup                          # Main backup script
-├── Makefile                        # Task runner with test/lint/format targets
+├── Makefile                        # Task runner with test/lint/format targets (uses Docker)
 ├── README.md                       # User documentation
 ├── AGENTS.md                       # This file - Agent documentation
 ├── LICENSE                         # Mozilla Public License 2.0
 ├── .gitignore                      # Git ignore rules for env, IDE, OS, log files
 ├── .markdownlint.yaml              # Markdown linting configuration
-├── .pre-commit-config.yaml         # Pre-commit hooks configuration
-├── requirements-dev.txt            # Development dependencies (pre-commit)
+├── .pre-commit-config.yaml         # Pre-commit hooks configuration (Docker-based)
 ├── tests/
 │   └── backup.bats                # Comprehensive bats test suite (9 tests)
 └── .github/
@@ -138,33 +131,21 @@ incremental-backup/
 
 5. **Add tests** for new functionality in `tests/backup.bats`
 
-### Installing Pre-Commit Hooks
+### Using Pre-Commit Hooks
 
-To automate code quality checks before each commit:
-
-```bash
-make install-hooks  # Install pre-commit and set up git hooks
-```
-
-This uses `uv tool install` to install pre-commit in an isolated environment, avoiding Python's externally-managed environment restrictions.
-
-Or manually:
+Pre-commit must be installed globally before use. Once installed, set up hooks with:
 
 ```bash
-uv tool install pre-commit
 pre-commit install
 ```
 
 Pre-commit hooks will automatically run:
 
-- **ShellCheck** - Static analysis on shell scripts
-- **shfmt** - Code formatting (2-space indent, spaces around redirects)
-
-Markdown linting is handled by the GitHub Actions CI workflow (.github/workflows/markdownlint.yml) instead of pre-commit.
+- **ShellCheck** - Static analysis on shell scripts (via Docker)
+- **shfmt** - Code formatting (2-space indent, spaces around redirects) (via Docker)
+- **markdownlint** - Markdown linting (via Docker)
 
 If any hook fails, fix the issues and try committing again.
-
-**Requirements:** `uv` (fast Python package installer). Install with `brew install uv` or from https://docs.astral.sh/uv/
 
 ### Before Creating a PR
 
@@ -215,11 +196,10 @@ Example test structure:
 | --- | --- | --- |
 | `backup` | Main script - implements incremental backup logic | Core logic changes go here |
 | `tests/backup.bats` | Test suite - validates backup script behavior | Add tests for new features |
-| `Makefile` | Task automation - provides test/lint/format targets | Rarely needs changes |
+| `Makefile` | Task automation - provides test/lint/format targets (Docker-based) | Update when changing docker image versions |
 | `README.md` | User documentation - how to use the script | Update with new user-facing features |
 | `AGENTS.md` | Agent documentation (this file) | Update when development workflow changes |
-| `.pre-commit-config.yaml` | Pre-commit hooks configuration | Update when adding new checks |
-| `requirements-dev.txt` | Development dependencies | Update when adding new tools |
+| `.pre-commit-config.yaml` | Docker-based pre-commit hooks configuration | Update when adding new checks or docker images |
 | `.gitignore` | Git ignore rules | Update when adding new patterns |
 | `.markdownlint.yaml` | Markdown linting rules | Rarely needs changes |
 
@@ -228,15 +208,11 @@ Example test structure:
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (via Docker)
 make test
-
-# Or directly with bats
-bats tests/backup.bats
-
-# Run with verbose output
-bats tests/backup.bats --verbose
 ```
+
+Tests run in a Docker container, so no local bats installation is required.
 
 ### What the Tests Cover
 
@@ -383,11 +359,12 @@ This configuration is respected by:
 
 This project is designed to be agent-friendly:
 
-- ✅ **Reproducible environment:** All dependencies are documented
-- ✅ **Comprehensive tests:** 9 tests with clear pass/fail criteria
+- ✅ **Reproducible environment:** All dependencies are containerized with Docker
+- ✅ **Zero local tool setup:** Only Docker and pre-commit need to be installed
+- ✅ **Comprehensive tests:** 9 tests with clear pass/fail criteria (runs via Docker)
 - ✅ **Automated validation:** Three CI workflows prevent broken commits
-  - Shell script linting (ShellCheck + shfmt)
-  - Unit & integration tests (bats)
+  - Shell script linting (ShellCheck + shfmt via Docker)
+  - Unit & integration tests (bats via Docker)
   - Markdown linting (markdownlint-cli2)
 - ✅ **Clear conventions:** Naming, style, and workflow documented
 - ✅ **Single-command setup:** `make test` validates everything
@@ -396,10 +373,11 @@ This project is designed to be agent-friendly:
 
 Agents should:
 
+- Ensure Docker is installed before working with the project
 - Always run `make test` after changes to verify tests pass
 - Always run `make lint` before creating PRs to check shell scripts
 - Write tests for new functionality in `tests/backup.bats`
-- Follow the 2-space indentation standard (enforced by shfmt)
+- Follow the 2-space indentation standard (enforced by shfmt in Docker)
 - Keep documentation up-to-date and markdown-compliant
 - Reference `BACKUP_SCRIPT` variable instead of hardcoded paths
 - Ensure all PRs pass three automated validation workflows
