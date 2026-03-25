@@ -1,20 +1,18 @@
 repos:
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.11.0
     hooks:
       - id: shellcheck
-        name: ShellCheck
-        description: Shell script static analysis
-        entry: shellcheck
-        language: python
-        types: [shell]
+        files: \.(sh|bats)$
 
-  - repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 3.0.0
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.12.0-2
     hooks:
-      - id: shfmt
-        name: shfmt
-        description: Format shell scripts with shfmt
-        entry: shfmt -i 2 -sr -ci
-        language: system
-        types: [shell]
+      - id: shfmt-docker
+        args: [-sr, -i, '2', -w, -ci]
+        files: \.(sh|bats)$
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.21.0
+    hooks:
+      - id: markdownlint-cli2-docker

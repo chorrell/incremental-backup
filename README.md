@@ -16,6 +16,7 @@ for space efficiency.
 - bash
 - rsync
 - find
+- Docker (for running tests, linting, and formatting)
 
 ## Usage
 
@@ -73,35 +74,27 @@ All backup operations are logged to `/var/log/incremental-backup.log` with times
 
 ## Testing
 
-The project includes comprehensive tests using [bats](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
+The project includes comprehensive tests using [bats](https://github.com/bats-core/bats-core) (Bash Automated Testing System), executed via Docker.
 
-### Running Tests Locally
+### Running Tests
 
-First, install bats:
-
-```bash
-# macOS with Homebrew
-brew install bats-core
-
-# Ubuntu/Debian
-apt-get install bats
-```
-
-Then run the tests:
+Run the tests with:
 
 ```bash
 make test
 ```
 
+This runs the tests in a Docker container, so no local bats installation is required.
+
 ### Running Linting and Formatting
 
-Check the script with ShellCheck:
+Check the script with ShellCheck (via Docker):
 
 ```bash
 make lint
 ```
 
-Format the script with shfmt:
+Format the script with shfmt (via Docker):
 
 ```bash
 make format
