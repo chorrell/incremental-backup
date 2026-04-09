@@ -4,28 +4,3 @@
 # Global owners - responsible for all files by default
 * @chorrell
 
-# Specific file ownership
-
-# Build and development configuration
-Makefile @chorrell
-.pre-commit-config.yaml @chorrell
-requirements-dev.txt @chorrell
-
-# Testing
-tests/ @chorrell
-tests/backup.bats @chorrell
-
-# CI/CD workflows
-.github/workflows/ @chorrell
-
-# Configuration files
-.gitignore @chorrell
-.markdownlint.yaml @chorrell
-
-# Documentation
-*.md @chorrell
-README.md @chorrell
-AGENTS.md @chorrell
-
-# Main script
-backup @chorrell
