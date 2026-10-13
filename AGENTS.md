@@ -263,8 +263,8 @@ Triggers on:
 
 Runs:
 
-- ShellCheck on `backup` and `tests/backup.bats`
-- shfmt formatting check (2-space indent, spaces around redirects)
+- The shared [chorrell/workflows](https://github.com/chorrell/workflows) `shell-lint` workflow, which finds shell files with `shfmt -f .` (here `backup` and `tests/backup.bats`)
+- ShellCheck (check `shell-lint / shellcheck`) and a shfmt formatting check (check `shell-lint / shfmt`; 2-space indent, spaces around redirects), at versions pinned to match the pre-commit hooks
 
 **Action:** PR will fail if ShellCheck finds issues or shfmt detects formatting violations
 
