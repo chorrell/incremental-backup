@@ -294,7 +294,7 @@ Triggers on:
 
 Runs:
 
-- DavidAnson/markdownlint-cli2-action@v22 to validate all markdown files
+- The shared [chorrell/workflows](https://github.com/chorrell/workflows) markdownlint workflow (markdownlint-cli2) to validate all markdown files
 - Respects `.markdownlint.yaml` configuration (disables MD013 line length and MD034 bare URLs)
 
 **Action:** PR will fail if markdown files have style violations
@@ -352,7 +352,7 @@ The project uses `.markdownlint.yaml` to configure markdown linting:
 
 This configuration is respected by:
 
-- `DavidAnson/markdownlint-cli2-action@v22` in GitHub Actions
+- The shared `chorrell/workflows` markdownlint workflow in GitHub Actions
 - Local markdownlint-cli2 when running `docker run davidanson/markdownlint-cli2:latest`
 
 ## Support for AI Agents
