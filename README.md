@@ -1,5 +1,8 @@
 # Incremental Backup Script
 
+[![Test](https://github.com/chorrell/incremental-backup/actions/workflows/test.yml/badge.svg)](https://github.com/chorrell/incremental-backup/actions/workflows/test.yml)
+[![Shell Script Checks](https://github.com/chorrell/incremental-backup/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/chorrell/incremental-backup/actions/workflows/shellcheck.yml)
+
 A bash script for performing incremental backups using rsync with hard links
 for space efficiency.
 

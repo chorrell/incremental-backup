@@ -4,6 +4,13 @@ permissions:
   pull-requests: write
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'backup'
+      - 'tests/**'
+      - '.github/workflows/test.yml'
+      - 'Makefile'
   pull_request:
     branches: [main]
     paths:

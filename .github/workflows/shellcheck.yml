@@ -3,6 +3,12 @@ permissions:
   contents: read
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'backup'
+      - 'tests/**'
+      - '.github/workflows/shellcheck.yml'
   pull_request:
     branches: [main]
     paths:
