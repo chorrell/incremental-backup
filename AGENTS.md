@@ -144,6 +144,9 @@ Pre-commit hooks will automatically run:
 - **ShellCheck** - Static analysis on shell scripts (via Docker)
 - **shfmt** - Code formatting (2-space indent, spaces around redirects) (via Docker)
 - **markdownlint** - Markdown linting (via Docker)
+- **zizmor** - GitHub Actions workflow linting and security audit (actionlint
+  isn't used because it rejects GitHub's `$/` self-repository `uses:` syntax,
+  [rhysd/actionlint#711](https://github.com/rhysd/actionlint/issues/711))
 
 If any hook fails, fix the issues and try committing again.
 
