@@ -136,7 +136,7 @@ incremental-backup/
 Pre-commit must be installed globally before use. Once installed, set up hooks with:
 
 ```bash
-pre-commit install
+prek install
 ```
 
 Pre-commit hooks will automatically run:
